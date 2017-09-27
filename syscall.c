@@ -352,8 +352,13 @@ verify_user_range (const void *uaddr, size_t size)
   sys_wait (int child)
   {
     /* TODO (Phase 2): Implement wait system call. */
-
-    return -1;
+	int ret = -1;
+	
+	lock_acquire (&fs_lock);
+	ret = process_wait(child);
+	lock_release (&fs_lock);
+	
+    return ret;
   }
 
   /* Create system call. */
@@ -804,11 +809,21 @@ allocate_pid (void)
   int ret= -1;
 //check lock
 //aquire lock
+  struct thread *cur = thread_current ();
+  ASSERT(NULL!=cur->pcb);
+  for(i=0; i < MAX_FILES; i++){
+	lock_acquire(&fs_lock);
+	if (NULL != cur ->pcb ->fds[i]]){
+		ret = i;
+	}
+    lock_release(&fs_lock);
+  }
+
 //set ret value
 //incriment
 //unlock
 
-return ret
+  return ret;
 
   //return -1;
 }
